@@ -165,6 +165,59 @@ func (c *Client) FindAddressBooks(addressBookHomeSet string) ([]AddressBook, err
 	return l, nil
 }
 
+type Address struct {
+	Path string
+	Name string
+	//ETag          string // TODO: Throws error "failed to unquote ETag: invalid syntax" @ Daylite6. Check RFC's!
+	MIMEType string
+}
+
+func (c *Client) FindAddresses(path string) ([]Address, error) {
+	propfind := internal.NewPropNamePropfind(
+		internal.DisplayNameName,
+		//internal.GetETagName,	// TODO: Throws error "failed to unquote ETag: invalid syntax" @ Daylite6. Check RFC's!
+		internal.GetContentTypeName,
+	)
+
+	ms, err := c.ic.Propfind(path, internal.DepthOne, propfind)
+	if err != nil {
+		return nil, err
+	}
+
+	l := make([]Address, 0, len(ms.Responses))
+	for _, resp := range ms.Responses {
+		path, err := resp.Path()
+		if err != nil {
+			return nil, err
+		}
+
+		var dispName internal.DisplayName
+		if err := resp.DecodeProp(&dispName); err != nil && !internal.IsNotFound(err) {
+			return nil, err
+		}
+
+		/* TODO: Throws error "failed to unquote ETag: invalid syntax" @ Daylite6. Check RFC's!
+		var getETag internal.GetETag
+		if err := resp.DecodeProp(&getETag); err != nil && !internal.IsNotFound(err) {
+			return nil, err
+		}*/
+
+		var getType internal.GetContentType
+		if err := resp.DecodeProp(&getType); err != nil && !internal.IsNotFound(err) {
+			return nil, err
+		}
+
+		l = append(l, Address{
+			Path: path,
+			Name: dispName.Name,
+			//ETag: string(getETag.ETag),
+			MIMEType: getType.Type,
+		})
+	}
+
+	return l, nil
+}
+
 func encodeAddressPropReq(req *AddressDataRequest) (*internal.Prop, error) {
 	var addrDataReq addressDataReq
 	if req.AllProp {
@@ -469,7 +522,7 @@ func (c *Client) SyncCollection(path string, query *SyncQuery) (*SyncResponse, e
 
 		var getETag internal.GetETag
 		if err := resp.DecodeProp(&getETag); err != nil && !internal.IsNotFound(err) {
-			return nil, err
+			//			return nil, err
 		}
 
 		o := AddressObject{
