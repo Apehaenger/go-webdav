@@ -20,6 +20,7 @@ var (
 	GetContentTypeName   = xml.Name{"DAV:", "getcontenttype"}
 	GetLastModifiedName  = xml.Name{"DAV:", "getlastmodified"}
 	GetETagName          = xml.Name{"DAV:", "getetag"}
+	SyncTokenName        = xml.Name{"DAV:", "sync-token"}
 
 	CurrentUserPrincipalName = xml.Name{"DAV:", "current-user-principal"}
 )
@@ -411,4 +412,10 @@ type SyncCollectionQuery struct {
 type Limit struct {
 	XMLName  xml.Name `xml:"DAV: limit"`
 	NResults uint     `xml:"nresults"`
+}
+
+// https://tools.ietf.org/html/rfc6578#section-4
+type SyncToken struct {
+	XMLName xml.Name `xml:"DAV: sync-token"`
+	Token   string   `xml:",chardata"`
 }

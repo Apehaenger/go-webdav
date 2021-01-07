@@ -109,6 +109,7 @@ func (c *Client) FindAddressBooks(addressBookHomeSet string) ([]AddressBook, err
 		addressBookDescriptionName,
 		maxResourceSizeName,
 		supportedAddressDataName,
+		internal.SyncTokenName,
 	)
 	ms, err := c.ic.Propfind(addressBookHomeSet, internal.DepthOne, propfind)
 	if err != nil {
@@ -153,12 +154,18 @@ func (c *Client) FindAddressBooks(addressBookHomeSet string) ([]AddressBook, err
 			return nil, err
 		}
 
+		var syncToken internal.SyncToken
+		if err := resp.DecodeProp(&syncToken); err != nil && !internal.IsNotFound(err) {
+			return nil, err
+		}
+
 		l = append(l, AddressBook{
 			Path:                 path,
 			Name:                 dispName.Name,
 			Description:          desc.Description,
 			MaxResourceSize:      maxResSize.Size,
 			SupportedAddressData: decodeSupportedAddressData(&supported),
+			SyncToken:            syncToken.Token,
 		})
 	}
 

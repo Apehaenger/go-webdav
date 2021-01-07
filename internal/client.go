@@ -201,7 +201,6 @@ func (c *Client) SyncCollection(path, syncToken string, level Depth, limit *Limi
 	}
 
 	req, err := c.NewXMLRequest("REPORT", path, &q)
-	fmt.Printf("CarDav Request method '%s', URL '%s', header '%s', body '%s'\n", req.Method, req.URL, req.Header, req.Body)
 	if err != nil {
 		return nil, err
 	}

@@ -18,6 +18,7 @@ type AddressBook struct {
 	Path                 string
 	Name                 string
 	Description          string
+	SyncToken            string
 	MaxResourceSize      int64
 	SupportedAddressData []AddressDataType
 }
