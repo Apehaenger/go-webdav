@@ -301,10 +301,12 @@ func decodeAddressList(ms *internal.Multistatus) ([]AddressObject, error) {
 			return nil, err
 		}
 
+		/* TODO: Throws error "failed to unquote ETag: invalid syntax" @ Daylite6. Check RFC's!
 		var getETag internal.GetETag
 		if err := resp.DecodeProp(&getETag); err != nil && !internal.IsNotFound(err) {
 			return nil, err
 		}
+		*/
 
 		r := bytes.NewReader(addrData.Data)
 		card, err := vcard.NewDecoder(r).Decode()
@@ -315,8 +317,8 @@ func decodeAddressList(ms *internal.Multistatus) ([]AddressObject, error) {
 		addrs = append(addrs, AddressObject{
 			Path:    path,
 			ModTime: time.Time(getLastMod.LastModified),
-			ETag:    string(getETag.ETag),
-			Card:    card,
+			//ETag:    string(getETag.ETag),
+			Card: card,
 		})
 	}
 
